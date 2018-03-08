@@ -2,8 +2,8 @@
 #include <stdio.h>
 #include <string.h>
 
-// #define NUM_TWEETERS 11433
-#define NUM_TWEETERS 100
+#define NUM_TWEETERS 11433
+// #define NUM_TWEETERS 100
 #define MAX_CHARS_READ 1024
 
 struct tweeter {
