@@ -42,7 +42,7 @@ int main(int argc, char** argv)
     while (fgets(line, 1024, stream))
     {
         char* tmp = strdup(line);
-        const char* out = getfield(tmp, 12);
+        const char* out = getfield(tmp, 8);
         int nextLength = strlen(out);
         lines++;
         printf("Text: %s\n", out);
