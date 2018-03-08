@@ -2,8 +2,8 @@
 #include <stdio.h>
 #include <string.h>
 
-// #define NUM_TWEETERS 11433
-#define NUM_TWEETERS 85
+#define NUM_TWEETERS 11433
+// #define NUM_TWEETERS 85
 #define MAX_CHARS_READ 1024
 
 struct tweeter {
@@ -93,7 +93,7 @@ int main(int argc, char** argv)
 
 	char line[MAX_CHARS_READ];
 	// char* tweeters[NUM_TWEETERS];
-	struct tweeter tweeters[NUM_TWEETERS];// = malloc(sizeof(struct tweeter));
+	static struct tweeter tweeters[NUM_TWEETERS];// = malloc(sizeof(struct tweeter));
 	int index = 0;
 
 	while(fgets(line, MAX_CHARS_READ, stream))
@@ -120,6 +120,7 @@ int main(int argc, char** argv)
 	}
 
 	for(int i = 0; i < NUM_TWEETERS; i++) {
-		printf("index: %d, name: %s, count: %d\n", i, tweeters[i].name, tweeters[i].count);
+		if(tweeters[i].name != NULL)
+			printf("index: %d, name: %s, count: %d\n", i, tweeters[i].name, tweeters[i].count);
 	}
 }
