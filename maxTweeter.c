@@ -2,8 +2,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#define NUM_TWEETERS 11433
-// #define NUM_TWEETERS 85
+// #define NUM_TWEETERS 11433
+#define NUM_TWEETERS 100
 #define MAX_CHARS_READ 1024
 
 struct tweeter {
@@ -34,10 +34,7 @@ int getColNum(char* line, char* str)
 	int col = 0;
 	for(tok = strtok2(line, ",");  ; tok = strtok2(NULL, ",\n"))
 	{
-		// printf("colnum: %d\n", col);
-		// printf("tok: %s\n", tok);
 		if(strcmp(tok, str) == 0) {
-			// printf("str: %s\n", str);
 			return col;
 		}
 		col++;
@@ -50,35 +47,35 @@ char* getField(char* line, int num)
 	char* tok;
 	for(tok = strtok2(line, ",");  ; tok = strtok2(NULL, ",\n"))
 	{
-		// printf("tok: %s\n", tok);
-		// printf("num: %d\n", num);
 		if(!num--) {
 			return tok;
 		}
-		// printf("HELLO\n");
 	}
 	return NULL;
 }
 
 int getList(char* name, struct tweeter *list, int index) {
 	for(int i = 0; i < NUM_TWEETERS; i++) {
-		// printf("forloop\n");
-		// printf("%s\n", list[i].name);
-		// printf("meh\n");
 		if(list[i].name != NULL && strcmp(list[i].name, name) == 0) {
-			// printf("HITHER\n");
 			list[i].count++;
 			return index;
 		}
 	}
-	// printf("THITHER\n");
 	list[index].name = name;
-	// strcpy(list[index].name, name);
-	// printf("aftercopy\n");
 	list[index].count = 1;
 	return ++index;
-	// return list;
-	// return ++index;
+}
+
+void sortList(struct tweeter *list) {
+	for(int i = 0; i < NUM_TWEETERS; i++) {
+		for(int j = i+1; j < NUM_TWEETERS; j++) {
+			if(list[i].count < list[j].count) {
+				int tmp = list[i].count;
+				list[i].count = list[j].count;
+				list[j].count = tmp;
+			}
+		}
+	}
 }
 
 int main(int argc, char** argv)
@@ -99,28 +96,26 @@ int main(int argc, char** argv)
 	while(fgets(line, MAX_CHARS_READ, stream))
 	{
 		char* tmp = strdup(line);
-
 		char* field = getField(tmp, nameCol);
-		printf("Name: %s\n", field);
-		// tweeters[index] = out;
-		// printf("Hi\n");
-		// tweeters[index].name = "hi";
+		// printf("Name: %s\n", field);
 		index = getList(field, tweeters, index);
-		// printf("Hiiii\n");
-		// index++;
-		// printf("index: %d\n", index);
-
-
-		// for(int i = 0; i < NUM_TWEETERS; i++) {
-		// 	printf("index: %d, name: %s, count: %d\n", i, tweeters[i].name, tweeters[i].count);
-		// }
-
 		if(!(index < NUM_TWEETERS))
 			break;
 	}
 
-	for(int i = 0; i < NUM_TWEETERS; i++) {
+	sortList(tweeters);
+
+	// for(int i = 0; i < NUM_TWEETERS; i++) {
+	// 	if(tweeters[i].name != NULL)
+	// 		printf("index: %d, name: %s, count: %d\n", i, tweeters[i].name, tweeters[i].count);
+	// }
+
+	printf("TOP 10 TWEETERS\n");
+	for(int i = 0; i < 10; i++) {
 		if(tweeters[i].name != NULL)
 			printf("index: %d, name: %s, count: %d\n", i, tweeters[i].name, tweeters[i].count);
 	}
+
+
+
 }
