@@ -2,7 +2,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#define NUM_TWEETERS 11433
+// #define NUM_TWEETERS 11433
+#define NUM_TWEETERS 85
 #define MAX_CHARS_READ 1024
 
 struct tweeter {
@@ -59,23 +60,25 @@ char* getField(char* line, int num)
 	return NULL;
 }
 
-int searchList(char* name, struct tweeter *list[], int index) {
-	for(int i = 0; i < 7; i++) {
-		printf("forloop\n");
-		printf("%s\n", list[index]->name);
-		printf("meh\n");
-		if(list[index]->name != NULL && strcmp(list[index]->name, name) == 0) {
-			printf("HITHER\n");
-			list[index]->count++;
-			return ++index;
+int getList(char* name, struct tweeter *list, int index) {
+	for(int i = 0; i < NUM_TWEETERS; i++) {
+		// printf("forloop\n");
+		// printf("%s\n", list[i].name);
+		// printf("meh\n");
+		if(list[i].name != NULL && strcmp(list[i].name, name) == 0) {
+			// printf("HITHER\n");
+			list[i].count++;
+			return index;
 		}
 	}
-	printf("THITHER\n");
-	list[index]->name = name;
+	// printf("THITHER\n");
+	list[index].name = name;
 	// strcpy(list[index].name, name);
-	printf("aftercopy\n");
-	list[index]->count = 1;
+	// printf("aftercopy\n");
+	list[index].count = 1;
 	return ++index;
+	// return list;
+	// return ++index;
 }
 
 int main(int argc, char** argv)
@@ -86,7 +89,7 @@ int main(int argc, char** argv)
 	char colNames[MAX_CHARS_READ];
 	fgets(colNames, MAX_CHARS_READ, stream);
 	int nameCol = getColNum(colNames, "name");
-	printf("%d\n", nameCol);
+	// printf("%d\n", nameCol);
 
 	char line[MAX_CHARS_READ];
 	// char* tweeters[NUM_TWEETERS];
@@ -100,20 +103,23 @@ int main(int argc, char** argv)
 		char* field = getField(tmp, nameCol);
 		printf("Name: %s\n", field);
 		// tweeters[index] = out;
-		printf("Hi\n");
+		// printf("Hi\n");
 		// tweeters[index].name = "hi";
-		index = searchList(field, &tweeters, index);
-			printf("Hiiii\n");
+		index = getList(field, tweeters, index);
+		// printf("Hiiii\n");
 		// index++;
-		printf("index: %d\n", index);
-		for(int i = 0; i < 7; i++) {
-			printf("index: %d, name: %s, count: %d\n", i, tweeters[i].name, tweeters[i].count);
-		}
-		if(index > 6)
+		// printf("index: %d\n", index);
+
+
+		// for(int i = 0; i < NUM_TWEETERS; i++) {
+		// 	printf("index: %d, name: %s, count: %d\n", i, tweeters[i].name, tweeters[i].count);
+		// }
+
+		if(!(index < NUM_TWEETERS))
 			break;
 	}
 
-	// for(int i = 0; i < 10; i++) {
-	// 	printf("index: %d, name: %s, count: %d\n", i, tweeters[i].name, tweeters[i].count);
-	// }
+	for(int i = 0; i < NUM_TWEETERS; i++) {
+		printf("index: %d, name: %s, count: %d\n", i, tweeters[i].name, tweeters[i].count);
+	}
 }
