@@ -3,7 +3,6 @@
 #include <string.h>
 
 #define NUM_TWEETERS 11433
-// #define NUM_TWEETERS 100
 #define MAX_CHARS_READ 1024
 
 struct tweeter {
@@ -54,7 +53,7 @@ char* getField(char* line, int num)
 	return NULL;
 }
 
-int getList(char* name, struct tweeter *list, int index) {
+int addToList(char* name, struct tweeter *list, int index) {
 	for(int i = 0; i < NUM_TWEETERS; i++) {
 		if(list[i].name != NULL && strcmp(list[i].name, name) == 0) {
 			list[i].count++;
@@ -86,29 +85,40 @@ int main(int argc, char** argv)
 	printf("Input file: %s\n", argv[1]);
 	FILE* stream = fopen(argv[1], "r");
 
+	if(stream == NULL) {
+		printf("Invalid Input Format\n");
+		return -1;
+	}
+
 	char colNames[MAX_CHARS_READ];
 	fgets(colNames, MAX_CHARS_READ, stream);
 	int nameCol = getColNum(colNames, "name");
+	// printf("hello\n");
+	// int tweetCol = getColNum(colNames, "text");
+	// printf("help\n");
 
 	char line[MAX_CHARS_READ];
 	static struct tweeter tweeters[NUM_TWEETERS];
-	int index = 0;
+	int nextIndex = 0;
+	// printf("HERE\n");
 
 	while(fgets(line, MAX_CHARS_READ, stream))
 	{
 		char* tmp = strdup(line);
 		char* field = getField(tmp, nameCol);
-		index = getList(field, tweeters, index);
+		// printf("HEREEE\n");
+		// char* tweet = getField(tmp, tweetCol);
+		// if(strpbrk(tweet, ",")) {
+		// 	printf("Invalid Input Format\n");
+		// 	return -1;
+		// }
+		nextIndex = addToList(field, tweeters, nextIndex);
 	}
 
 	sortList(tweeters);
 
 	printf("TOP 10 TWEETERS\n");
 	for(int i = 0; i < 10; i++) {
-		if(tweeters[i].name != NULL)
 			printf("<%s>: <%d>\n", tweeters[i].name, tweeters[i].count);
 	}
-
-
-
 }
