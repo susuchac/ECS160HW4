@@ -70,9 +70,12 @@ void sortList(struct tweeter *list) {
 	for(int i = 0; i < NUM_TWEETERS; i++) {
 		for(int j = i+1; j < NUM_TWEETERS; j++) {
 			if(list[i].count < list[j].count) {
-				int tmp = list[i].count;
+				int tmpc = list[i].count;
+				char* tmpn = list[i].name;
 				list[i].count = list[j].count;
-				list[j].count = tmp;
+				list[i].name = list[j].name;
+				list[j].count = tmpc;
+				list[j].name = tmpn;
 			}
 		}
 	}
