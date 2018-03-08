@@ -2,19 +2,36 @@
 #include <stdio.h>
 #include <string.h>
 
+char* strtok2(char* line, char const* delim)
+{
+	static char* src = NULL;
+	char *tok, *retval = 0;
+	if(line != NULL)
+		src = line;
+	if(src == NULL) 
+		return NULL;
+	if((tok = strpbrk(src, delim)) != NULL) {
+		*tok = 0;
+		retval = src;
+		src = ++tok;
+	}
+	return retval;
+
+}
+
 int getColNum(char* line, char* str)
 {
 	const char* tok;
 	int col = 0;
-	for(tok = strtok(line, ",");  ; tok = strtok(NULL, ",\n"))
+	for(tok = strtok2(line, ",");  ; tok = strtok2(NULL, ",\n"))
 	{
+		printf("colnum: %d\n", col);
 		printf("tok: %s\n", tok);
 		if(strcmp(tok, str) == 0) {
 			printf("str: %s\n", str);
 			return col;
 		}
 		col++;
-		printf("colnum: %d\n", col);
 	}
 	return -1;
 }
@@ -22,9 +39,10 @@ int getColNum(char* line, char* str)
 const char* getField(char* line, int num)
 {
 	const char* tok;
-	for(tok = strtok(line, ",");  ; tok = strtok(NULL, ",\n"))
+	for(tok = strtok2(line, ",");  ; tok = strtok2(NULL, ",\n"))
 	{
-		printf("field\n");
+		printf("tok: %s\n", tok);
+		// printf("field\n");
 		if(!--num)
 			return tok;
 	}
@@ -39,6 +57,7 @@ int main(int argc, char** argv)
 	char colNames[1024];
 	fgets(colNames, 1024, stream);
 	int nameCol = getColNum(colNames, "name");
+	printf("%d\n", nameCol);
 
 	char line[1024];
 
