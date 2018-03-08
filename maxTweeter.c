@@ -89,34 +89,24 @@ int main(int argc, char** argv)
 	char colNames[MAX_CHARS_READ];
 	fgets(colNames, MAX_CHARS_READ, stream);
 	int nameCol = getColNum(colNames, "name");
-	// printf("%d\n", nameCol);
 
 	char line[MAX_CHARS_READ];
-	// char* tweeters[NUM_TWEETERS];
-	static struct tweeter tweeters[NUM_TWEETERS];// = malloc(sizeof(struct tweeter));
+	static struct tweeter tweeters[NUM_TWEETERS];
 	int index = 0;
 
 	while(fgets(line, MAX_CHARS_READ, stream))
 	{
 		char* tmp = strdup(line);
 		char* field = getField(tmp, nameCol);
-		// printf("Name: %s\n", field);
 		index = getList(field, tweeters, index);
-		if(!(index < NUM_TWEETERS))
-			break;
 	}
 
 	sortList(tweeters);
 
-	// for(int i = 0; i < NUM_TWEETERS; i++) {
-	// 	if(tweeters[i].name != NULL)
-	// 		printf("index: %d, name: %s, count: %d\n", i, tweeters[i].name, tweeters[i].count);
-	// }
-
 	printf("TOP 10 TWEETERS\n");
 	for(int i = 0; i < 10; i++) {
 		if(tweeters[i].name != NULL)
-			printf("index: %d, name: %s, count: %d\n", i, tweeters[i].name, tweeters[i].count);
+			printf("<%s>: <%d>\n", tweeters[i].name, tweeters[i].count);
 	}
 
 
