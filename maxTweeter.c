@@ -90,12 +90,18 @@ int main(int argc, char** argv)
 		return -1;
 	}
 
-	char colNames[MAX_CHARS_READ];
+	static char colNames[MAX_CHARS_READ];
 	fgets(colNames, MAX_CHARS_READ, stream);
+ 	char* tmpColNames;
+	strcpy (tmpColNames, colNames);
 	int nameCol = getColNum(colNames, "name");
-	// printf("hello\n");
-	// int tweetCol = getColNum(colNames, "text");
-	// printf("help\n");
+	//printf("%s", tmpColNames);
+	//printf("hello\n");
+	
+	
+	int tweetCol = getColNum(tmpColNames, "text");
+	printf("help\n");
+	printf("%d\n", tweetCol);
 
 	char line[MAX_CHARS_READ];
 	static struct tweeter tweeters[NUM_TWEETERS];
@@ -105,13 +111,20 @@ int main(int argc, char** argv)
 	while(fgets(line, MAX_CHARS_READ, stream))
 	{
 		char* tmp = strdup(line);
+		printf("%s\n", tmp);
+		char* tmp2;
+		//strcpy (tmp2, line);
 		char* field = getField(tmp, nameCol);
-		// printf("HEREEE\n");
-		// char* tweet = getField(tmp, tweetCol);
-		// if(strpbrk(tweet, ",")) {
-		// 	printf("Invalid Input Format\n");
-		// 	return -1;
-		// }
+		//printf("%s\n", field);
+		//printf("HEREEE\n");
+		//printf("%s\n", tmp2);	
+		//char *tmp2 = strdup(line);
+		//printf("%s\n", tmp2);
+		//char* tweet = getField(line, tweetCol);
+		//if(strpbrk(tweet, ",")) {
+		//	printf("Invalid Input Format\n");
+		 //	return -1;
+		 //}
 		nextIndex = addToList(field, tweeters, nextIndex);
 	}
 
