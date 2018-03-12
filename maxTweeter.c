@@ -2,26 +2,40 @@
 #include <stdio.h>
 #include <string.h>
 
-#define NUM_TWEETERS 11433
-#define MAX_CHARS_READ 1024
+#define MAX_LINES 		20000
+#define MAX_TWEETERS 	6228
+#define MAX_CHARS_READ 	377
+#define TWEETER_BUFFER 	7000
+#define CHAR_BUFFER		1024
 
+/**
+ * 	A tweeter struct to hold the values of each tweeter
+ *
+ *	@param name: the tweeter's name
+ *	@param count: the number of tweeter's tweets
+ */
 struct tweeter {
 	char* name;
 	int count;
 };
 
+/**
+ *	strtok2() function: same as strtok() but doesn't skip the
+ *	empty spaces between the delimiters like strtok() does
+ *
+ *	@param line: the line to tokenize
+ *	@param delim: the delimiters
+ */
 char* strtok2(char* line, char const* delim)
 {
-	// if(delim == NULL) {
-	// 	printf("Invalid Input Format\n");
-	// 	// return -1;
-	// }
 	static char* src = NULL;
 	char *tok, *retval = 0;
 	if(line != NULL)
 		src = line;
 	if(src == NULL) 
 		return NULL;
+
+	/** strpbrk() returns the first instance of the delimiter */
 	if((tok = strpbrk(src, delim)) != NULL) {
 		*tok = 0;
 		retval = src;
@@ -31,45 +45,55 @@ char* strtok2(char* line, char const* delim)
 
 }
 
+/**
+ *	getNumberOfCols() function: gets the number of columns in a line
+ *
+ *	@param line: the line to count the number of columns for
+ */
 int getNumberOfCols(char* line) 
 {
 	if(line == NULL) {
-		printf("Invalid Input Format\n");
 		return -1;
 	}
-	char* tok;
-	// printf("line: %s\n", line);
-	char* commas;
-	// printf("commas: %s\n", commas);
+	char *tok, *commas;
 	int count = 0;
 	if((commas = strpbrk(line, ",")) != NULL) {
 		count = 1;
 	}
 	while(commas != NULL) {
-		// printf("commas: %s", commas);
-		commas = strpbrk(commas+1, ",");
+		commas = strpbrk(commas + 1, ",");
 		count++;
 	}
-	// printf("Count: %d\n", count);
 	return count;
 }
 
+/**
+ *	getColNum() function: gets the column number in @param line 
+ *	corresponding to the column header @param str
+ *	
+ *	@param line: the line to search for the column header @param str
+ *	@param str: the column header to search for in @param line
+ */
 int getColNum(char* line, char* str)
 {
 	if(line == NULL || str == NULL) {
-		printf("Invalid Input Format\n");
 		return -1;
 	}
 	char* tok;
 	int col = 0;
+
+	char strquotes[strlen(str)+3];
+	strquotes[0] = '\"';
+	strcpy(strquotes+1, str);
+	strquotes[strlen(str)+1] = '\"';
+	strquotes[strlen(str)+2] = '\0';
+
 	for(tok = strtok2(line, ",");  ; tok = strtok2(NULL, ",\n"))
 	{
 		if(tok == NULL) {
-			printf("Invalid Input Format\n");
 			return -1;
 		}
-		// printf("%d\n", col);
-		if(strcmp(tok, str) == 0) {
+		if(strcmp(tok, str) == 0 || strcmp(tok, strquotes) == 0) {
 			return col;
 		}
 		col++;
@@ -77,18 +101,20 @@ int getColNum(char* line, char* str)
 	return -1;
 }
 
+/**
+ *	getField() function: gets the field in @param line corresponding
+ *	to the column number @param num
+ *
+ *	@param line: the line to search for the column number @param num
+ *	@param num: the column number to search for in @param line
+ */
 char* getField(char* line, int num)
 {
-	// if(line == NULL || num < 0) {
-	// 	printf("Invalid Input Format\n");
-	// 	// return -1;
-	// }
 	char* tmpline = strdup(line);
 	char* tok;
 	for(tok = strtok2(tmpline, ",");  ; tok = strtok2(NULL, ",\n"))
 	{
 		if(tok == NULL) {
-			printf("Invalid Input Format\n");
 			return NULL;
 		}
 		if(!num--) {
@@ -98,12 +124,18 @@ char* getField(char* line, int num)
 	return NULL;
 }
 
+/**
+ *	addToList() function: adds @param name to  @param list at @param index
+ *
+ *	@param name: the name to add to the @param list
+ *	@param list: the list that @param name is being added to
+ *	@param index: the index of @param list that @param name is added to
+ */
 int addToList(char* name, struct tweeter *list, int index) {
 	if(name == NULL || list == NULL || index < 0) {
-		printf("Invalid Input Format\n");
 		return -1;
 	}
-	for(int i = 0; i < NUM_TWEETERS; i++) {
+	for(int i = 0; i < TWEETER_BUFFER; i++) {
 		if(list[i].name != NULL && strcmp(list[i].name, name) == 0) {
 			list[i].count++;
 			return index;
@@ -114,16 +146,18 @@ int addToList(char* name, struct tweeter *list, int index) {
 	return ++index;
 }
 
+/**
+ *	sortList() function: sorts @param list in descending order of tweet count
+ *
+ *	@param list: the list to sort
+ */
 void sortList(struct tweeter *list) {
-	// if(list == NULL) {
-	// 	printf("Invalid Input Format\n");
-	// 	// return -1;
-	// }
-	for(int i = 0; i < NUM_TWEETERS; i++) {
-		for(int j = i+1; j < NUM_TWEETERS; j++) {
+	for(int i = 0; i < TWEETER_BUFFER; i++) {
+		for(int j = i+1; j < TWEETER_BUFFER; j++) {
 			if(list[i].count < list[j].count) {
 				int tmpc = list[i].count;
 				char* tmpn = list[i].name;
+				/** swap the values at index i and index j */
 				list[i].count = list[j].count;
 				list[i].name = list[j].name;
 				list[j].count = tmpc;
@@ -133,98 +167,120 @@ void sortList(struct tweeter *list) {
 	}
 }
 
+/** 
+ *	getListSize() function: gets the size of @param list
+ */
+int getListSize(struct tweeter *list)
+{
+	int count = 0;
+	for(int i = 0; i < TWEETER_BUFFER; i++) {
+		if(list[i].name != NULL) {
+			count++;
+		}
+	}
+	return count;
+}
+
+/** 
+ *	printInvalid() function: prints the invalid statements
+ */
+int printInvalid() 
+{
+	printf("Invalid Input Format\n");
+	return -1;
+}
+
+/**
+ *	main() function
+ */
 int main(int argc, char** argv)
 {
+	/** if no input file */
 	if(argv[1] == NULL) {
-		printf("Invalid Input Format\n");
-		return -1;
+		return printInvalid();
 	}
 	printf("Input file: %s\n", argv[1]);
+	
 	FILE* stream = fopen(argv[1], "r");
-
+	/** if fopen() failed  */
 	if(stream == NULL) {
-		printf("Invalid Input Format\n");
-		return -1;
+		return printInvalid();
 	}
 
-	char colNames[MAX_CHARS_READ];
-	fgets(colNames, MAX_CHARS_READ, stream);
-	// printf("stream: %d\n", stream);
-	// printf("MAX_CHARS_READ: %d\n", MAX_CHARS_READ);
+	char colNames[CHAR_BUFFER];
+	fgets(colNames, CHAR_BUFFER, stream);
+	/** if the length of the header line is greater than MAX_CHARS_READ */
+	if(strlen(colNames) > MAX_CHARS_READ) {
+		return printInvalid();
+	}
 
-	// printf("colNames: %s\n", colNames);
 	char* cnTmp = strdup(colNames);
-	// printf("cnTmp: %s\n", cnTmp);
 	int nameCol = getColNum(cnTmp, "name");
-	// printf("cnTmp: %s\n", cnTmp);
-	// printf("nameCol: %d\n", nameCol);
+	/** if '"name"' or 'name' columns not found */
+	if(nameCol == -1) {
+		return printInvalid();
+	}
 
 	cnTmp = strdup(colNames);
-	// printf("cnTmp2: %s\n", cnTmp2);
 	int tweetCol = getColNum(cnTmp, "text");
-	// printf("cnTmp2: %s\n", cnTmp2);
-	// printf("tweetCol: %d\n", tweetCol);
+	/** if '"text"' or 'text' columns not found */
+	if(tweetCol == -1) {
+		return printInvalid();
+	}
 
 	cnTmp = strdup(colNames);
-	// printf("cnTmp3: %s\n", cnTmp3);
 	int numCols = getNumberOfCols(cnTmp);
-	// printf("cnTmp3: %s\n", cnTmp3);
-	// printf("numCols %d\n", numCols);
+	/** if cnTmp parameter is invalid */
+	if(numCols == -1) {
+		return printInvalid();
+	}
 
-
-	char line[MAX_CHARS_READ];
-	static struct tweeter tweeters[NUM_TWEETERS];
-	// printf("NUM_TWEETERS: %d\n", NUM_TWEETERS);
+	char line[CHAR_BUFFER];
+	static struct tweeter tweeters[TWEETER_BUFFER];
 	int nextIndex = 0;
+	int tweeterCount = 0;
+	int lineCount = 1;
 
-	// int cnt = 0;
-	while(fgets(line, MAX_CHARS_READ, stream))
+	while(fgets(line, CHAR_BUFFER, stream))
 	{
-	// fgets(line, MAX_CHARS_READ, stream);
-		char* tmp = strdup(line);
-		// printf("tmp: %s\n", tmp);
-		// for(int i = 0; i < 16; ++i) {
-			// printf("field %d %s\n", i, getField(tmp, i));
-			// tmp = strdup(line);
-		// }
-		// printf("%s\n", getField(tmp, 11));
-		char* field = getField(tmp, nameCol);
-		if(field == NULL) {
-			printf("Invalid Input Format\n");
-			return -1; 
+		/** if the line length exceeds MAX_CHARS_READ */
+		if(strlen(line) > MAX_CHARS_READ) {
+			return printInvalid();
 		}
 
+		char* tmp = strdup(line);
+		char* field = getField(tmp, nameCol);
+
+		/** if field is null */
+		if(field == NULL) {
+			return printInvalid();
+		}
 
 		tmp = strdup(line);
-		// printf("field: %s\n", field);
-		// printf("HEREEE\n");
-		// char* tweet = getField(tmp, tweetCol);
-		// tmp = strdup(line);
-		// printf("tweet: %s\n", tweet);
-
-		// char* tweetTmp = strdup(tweet);
-		// printf("strpbrk: %s\n", strpbrk(tweetTmp, ","));
-		// tweetTmp = strdup(tweet);
-		// if(strpbrk(tweetTmp, ",") != NULL) {
-		// 	printf("Invalid Input Format\n");
-		// 	return -1;
-		// }
-	 	// printf("%s\n", tmp);
 		nextIndex = addToList(field, tweeters, nextIndex);
-		// printf("nextIndex: %d\n", nextIndex);
-		// char* tmpl = strdup(line);
-		// printf("tmpl: %s\n", tmpl);
-		int ncols = getNumberOfCols(tmp);
-		if(ncols != numCols) {
-			printf("Invalid Input Format\n");
-			return -1;
+
+		/** if nextIndex in list is invalid */
+		if(nextIndex == -1) {
+			return printInvalid();
 		}
-		// printf("tmpl: %s\n", tmpl);
-		// printf("ncols %d\n", ncols);
-		// if(cnt > 1) {
-		// 	break;
-		// }
-		// cnt++;
+
+		int ncols = getNumberOfCols(tmp);
+		/** if number of columns is not equivalent */
+		if(ncols != numCols) {
+			return printInvalid();
+		}
+
+		lineCount++;
+		/** if line count exceeds MAX_LINES */
+		if(lineCount > MAX_LINES) {
+			return printInvalid();
+		}
+	}
+
+	/** if number of tweeters exceeds MAX_TWEETER */
+	int numTweeters = getListSize(tweeters);
+	if(numTweeters > MAX_TWEETERS) {
+		return printInvalid();
 	}
 
 	sortList(tweeters);
